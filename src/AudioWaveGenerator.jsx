@@ -26,16 +26,15 @@ const AudioWaveGenerator = () => {
     );
     const audioData = buffer.getChannelData(0);
     
-    // Normalize frequency to get a reasonable multiplier (220Hz - 880Hz range)
     const freqFactor = (frequency - 220) / (880 - 220); // 0 to 1 range
     
     for(let i = 0; i < audioData.length; i++) {
       const noise = Math.random() * 2 - 1;
       // Use frequency to modulate noise amplitude
       // Higher frequencies will have more prominent high-amplitude noise
-      const amplitude = 0.2 + (freqFactor * 0.7); // Range from 0.3 to 1.0
+      const amplitude = 0.2 + (freqFactor * 0.7); // Range from 0.2 to 1.0
       
-      // Add some periodic variation based on frequency
+      // periodic variation based on frequency
       const periodicFactor = Math.sin(2 * Math.PI * i * (frequency*0.6) / audioContextRef.current.sampleRate);
       
       // Combine noise with frequency-dependent modulation
@@ -46,7 +45,6 @@ const AudioWaveGenerator = () => {
 
   const playNoise = () => {
     if (audioContextRef.current && gainNodeRef.current) {
-      // Stop previous noise if any
       if (noiseSourceRef.current) {
         try {
           noiseSourceRef.current.stop();
@@ -148,15 +146,12 @@ const AudioWaveGenerator = () => {
   };
 
   const calculateNewFrequency = (distance, timeDiff) => {
-    // Convert timeDiff to seconds for more intuitive speed calculation
     const timeInSeconds = timeDiff / 1000;
-    // Calculate speed in pixels per second
     const speed = timeInSeconds > 0 ? distance / timeInSeconds : 0;
     
-    const minFreq = 220;  // A3
-    const maxFreq = 880;  // A5
+    const minFreq = 220;  
+    const maxFreq = 880; 
     
-    // Adjust these values to tune the response
     const speedMultiplier = 1.5;  // Adjust this to make frequency more or less sensitive to speed
     const frequency = minFreq + (speed * speedMultiplier);
     const clampedFreq = Math.min(Math.max(frequency, minFreq), maxFreq);
@@ -169,7 +164,7 @@ const AudioWaveGenerator = () => {
 
   const handleMouseEnter = async (e) => {
     try {
-      // Initialize position on mouse enter
+      
       lastMousePositionRef.current = { x: e.clientX, y: e.clientY };
       lastMoveTimeRef.current = Date.now();
       await startSound();
@@ -199,7 +194,7 @@ const AudioWaveGenerator = () => {
       const distance = Math.sqrt(dx * dx + dy * dy);
       const timeDiff = currentTime - lastMoveTimeRef.current;
 
-      // Only update if we have meaningful movement and time difference
+      
       if (distance > 0 && timeDiff > 0) {
         const { speed, frequency } = calculateNewFrequency(distance, timeDiff);
 
@@ -210,7 +205,7 @@ const AudioWaveGenerator = () => {
           );
           lastFrequencyRef.current = frequency;
           
-          // Update debug info
+          
           setDebug({
             distance: Math.round(distance),
             speed: Math.round(speed),
@@ -244,7 +239,6 @@ const AudioWaveGenerator = () => {
             : "Click to initialize audio"}
         </p>
       </div>
-      {/* Debug display moved outside the wave generator */}
       <div className="debug-info">
         <p>Distance: {debug.distance}px</p>
         <p>Speed: {debug.speed}px/s</p>
